@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState,useEffect } from "react";
 import { db } from "../firebase";
 import { doc, getDoc, updateDoc, collection, query, where, getDocs } from "firebase/firestore";
 
@@ -7,6 +7,7 @@ const BankAdmin = () => {
   const [amount, setAmount] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+  const [users, setUsers] = useState([]);
 
   const fetchUserByFacepayID = async (facePayId) => {
     try {
@@ -21,6 +22,22 @@ const BankAdmin = () => {
       console.error("Error fetching user:", error);
     }
     return null;
+  };
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const usersRef = collection(db, "users");
+      const snapshot = await getDocs(usersRef);
+      const usersList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setUsers(usersList);
+    };
+
+    fetchUsers();
+  })
+
+  const copyFaceId = (facePayId) => {
+    navigator.clipboard.writeText(facePayId);
+    alert(`Face ID copied: ${facePayId}`);
   };
 
   const handleAddMoney = async () => {
@@ -81,6 +98,20 @@ const BankAdmin = () => {
         </button>
         {message && <p className="text-center mt-4 text-gray-700">{message}</p>}
       </div>
+      <div className="mt-6 flex space-x-4">
+          {users
+            .map(({ id, image, facePayId, fullName }) => (
+              <div key={id} className="flex flex-col items-center">
+                <img
+                  src={image}
+                  alt={fullName}
+                  className="w-12 h-12 rounded-full cursor-pointer border-2 border-gray-300 hover:border-blue-500 transition"
+                  onClick={() => copyFaceId(facePayId)}
+                />
+                <p className="text-xs mt-1">{fullName.split(" ")[0]}</p>
+              </div>
+            ))}
+        </div>
     </div>
   );
 };

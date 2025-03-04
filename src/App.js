@@ -14,11 +14,11 @@ const App = () => {
         <Route path="/" element={<LandingPage />} />
         <Route path="/signup" element={<Signup />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/admin" element={<BankAdmin />} />
 
         {/* Protected Routes */}
         <Route element={<ProtectedRoute />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/admin" element={<BankAdmin />} />
         </Route>
 
         {/* Fallback Route (Optional) */}

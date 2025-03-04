@@ -22,6 +22,7 @@ const Dashboard = () => {
   const [isFaceVerifyOpen, setIsFaceVerifyOpen] = useState(false);
   const [faceVerified, setFaceVerified] = useState(false);
   const [loadingFace, setLoadingFace] = useState(false);
+  const [users, setUsers] = useState([]);
   const [descriptor, setDescriptor] = useState(null);
   const [error, setError] = useState(null);
   const webcamRef = useRef(null);
@@ -115,7 +116,15 @@ const Dashboard = () => {
                 setLoading(false);
               }
             };
+
+            const fetchUsers = async () => {
+              const usersRef = collection(db, "users");
+              const snapshot = await getDocs(usersRef);
+              const usersList = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+              setUsers(usersList);
+            };
         
+            fetchUsers();
             fetchDescriptor();
             loadModels();    
             const interval = setInterval(async () => {
@@ -135,6 +144,11 @@ const Dashboard = () => {
 
     return () => unsubscribe();
   }, []);
+
+  const copyFaceId = (facePayId) => {
+    navigator.clipboard.writeText(facePayId);
+    alert(`Face ID copied: ${facePayId}`);
+  };
 
   const fetchTransactions = async (userId) => {
     const transactionsRef = collection(db, "transactions");
@@ -296,6 +310,23 @@ const Dashboard = () => {
           >
             Logout
           </button>
+
+          <div className="mt-6 flex space-x-4">
+          {users
+            .filter(u => u.uid !== user?.uid) // Exclude the current user
+            .map(({ id, image, facePayId, fullName }) => (
+              <div key={id} className="flex flex-col items-center">
+                <img
+                  src={image}
+                  alt={fullName}
+                  className="w-12 h-12 rounded-full cursor-pointer border-2 border-gray-300 hover:border-blue-500 transition"
+                  onClick={() => copyFaceId(facePayId)}
+                />
+                <p className="text-xs mt-1">{fullName.split(" ")[0]}</p>
+              </div>
+            ))}
+        </div>
+        
         </div>
       </div>
 
