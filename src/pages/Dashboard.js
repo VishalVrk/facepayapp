@@ -25,6 +25,7 @@ const Dashboard = () => {
   const [users, setUsers] = useState([]);
   const [descriptor, setDescriptor] = useState(null);
   const [error, setError] = useState(null);
+  const [uuid, setUUID] = useState(null);
   const webcamRef = useRef(null);
   const [faceDetected, setFaceDetected] = useState(false);
 
@@ -91,6 +92,7 @@ const Dashboard = () => {
         fetchUserByUID(user.uid).then((userData) => {
           if (userData) {
             const uid = userData.id;
+            setUUID(uid)
             const userRef = doc(db, "users", uid);
             onSnapshot(userRef, (docSnap) => {
               if (docSnap.exists()) {
@@ -302,7 +304,7 @@ const Dashboard = () => {
       {/* Left Column - Profile and Balance */}
       <div className="lg:col-span-4 space-y-6">
         <div className="bg-white rounded-2xl p-6 shadow-lg">
-          {user && <UserProfile user={user} userImage={userImage} />}
+          {user && <UserProfile user={user} userImage={userImage} db={db} uid={uuid} />}
           <WalletBalance balance={balance} />
           <button
             onClick={() => signOut(auth)}

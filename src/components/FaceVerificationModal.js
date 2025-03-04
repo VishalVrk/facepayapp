@@ -7,6 +7,7 @@ const FaceVerificationModal = ({ webcamRef, handleFaceVerified, handleClose, loa
   const [showError, setShowError] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [isVerifying, setIsVerifying] = useState(false);
+  const [showPaymentSuccess, setShowPaymentSuccess] = useState(false); // New state for payment success
 
   const handleVerify = async () => {
     if (!faceDetected) {
@@ -27,8 +28,12 @@ const FaceVerificationModal = ({ webcamRef, handleFaceVerified, handleClose, loa
         setShowSuccess(true);
         setTimeout(() => {
           setShowSuccess(false);
-          handleClose();
-        }, 2000);
+          setShowPaymentSuccess(true); // Show payment success message
+          setTimeout(() => {
+            setShowPaymentSuccess(false);
+            handleClose(); // Close the modal after payment success message
+          }, 2000); // Display payment success message for 2 seconds
+        }, 2000); // Display verification success for 2 seconds
       }
     } catch (error) {
       setErrorMessage('Verification failed. Please try again.');
@@ -119,6 +124,18 @@ const FaceVerificationModal = ({ webcamRef, handleFaceVerified, handleClose, loa
           </div>
         </div>
       </div>
+
+      {/* Payment Success Popup */}
+      {showPaymentSuccess && (
+        <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <div className="bg-white p-6 rounded-xl shadow-lg text-center">
+            <div className="bg-green-100 p-4 rounded-full inline-block mb-4">
+              <CheckCircle className="w-10 h-10 text-green-500" />
+            </div>
+            <p className="text-green-700 font-medium text-xl">Payment Sent Successfully</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
